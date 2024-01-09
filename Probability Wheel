@@ -1,0 +1,61 @@
+from PIL import Image
+import numpy as np
+import numpy
+import cv2
+import random
+import tkinter as tk
+from tkinter import simpledialog, messagebox
+
+def LE(min_interval, max_interval, p, mode):
+    #Choix du paramètre par l'expert
+    choix = simpledialog.askfloat("Saisie", "Entrez le choix : ")
+
+# Fonction appelée lorsque le bouton est cliqué
+
+    #créer la roue de probabilites
+    image = np.full((520, 1040, 3), 255, dtype=np.uint8)
+    angle = 360*p
+
+# Implémentation des textes
+
+    cv2.putText(image, 'Probability Wheel', (260, 480), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0),4 )
+    cv2.putText(image, 'Restau', (650, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0),4 )
+    cv2.putText(image, 'Voyage', (650, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0),4 )
+    cv2.putText(image, 'A', (260, 280), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0),4 )
+    cv2.putText(image, 'B', (720, 280), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0),4 )
+
+    cv2.putText(image, 'Occurence', (850,150), cv2.FONT_HERSHEY_SIMPLEX, 0.5 , (0, 0, 0),2 )
+    cv2.putText(image, 'Non Occurence', (850,200), cv2.FONT_HERSHEY_SIMPLEX, 0.5 , (0, 0, 0),2 )
+
+    #Calcul de la probabilite
+    if mode == 'Reversed':
+        choix = (choix + 1) % 2
+    liste = [min_interval, max_interval]  # p = probabilite qui s affiche
+    # choix = 0 correspond a la lotterie de gauche (celle dont la probabilite
+    # change)
+    if choix == 0:
+        max_interval = p
+        p = round(p / 4, 2)
+        if min_interval > p:
+            p = round(min_interval + (max_interval - min_interval) / 4, 2)
+        liste = [min_interval, max_interval]
+        angle = 360*p
+    # choix = 1 correspond a la lotterie de droite (celle qui ne change pas)
+    else:
+        min_interval = p
+        p = round(max_interval - (max_interval - p) / 4, 2)
+        angle=360*p
+        liste = [min_interval, max_interval]
+
+# Creation des deux arcs
+    cv2.ellipse(image, (260, 150), (90, 90), 0, 0, 360, (250, 0, 0), -1)
+    cv2.ellipse(image, (260, 150), (90, 90), 0, 0, angle, (0, 0, 255), -1)
+
+    cv2.ellipse(image, (800, 150), (20, 20), 0, 0, 360, (0, 0, 255), -1)
+    cv2.ellipse(image, (800, 200), (20, 20), 0, 0, 360, (255, 0, 0), -1)
+
+    img=Image.fromarray(image,'RGB')
+    img.save('arr.png')
+    img.show()
+
+    return p
